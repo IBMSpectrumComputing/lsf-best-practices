@@ -477,9 +477,33 @@ The keywords `slots` and `maxslots` are available for use in the order portion o
 
 If Dynamic Hosts are not used in a cluster, the housekeeping effort that mbatchd goes through to detect and remove non-functioning Dynamic Hosts can be disabled. To disabled, comment out the `LSF_DYNAMIC_HOST_TIMEOUT` entry from `lsf.conf`, indicating why the parameter is being disabled.
 
-##### 3.2.8.2 JOB_SPOOL_DIR
+### 3.2.8.2 JOB_SPOOL_DIR
 
-Unconfigured, LSF will spool job related data (job file, standard I/O files) to `$HOME/.lsbatch` for each user.  When many jobs from the same user start or exit, this will generate huge load on the HOME filer and impact overall system performance. To minimize the impact, one can configure `JOB_SPOOL_DIR` in `lsb.params` to point to a high performance scalable file system the standard output and standard error for the job are buffered in the specified directory.
+If `JOB_SPOOL_DIR` is not configured, LSF uses `$HOME/.lsbatch` as the default job spool directory on UNIX/Linux systems. Job-related temporary data, including buffered standard output and standard error, can therefore generate significant filesystem I/O and metadata activity on users' home filesystems, particularly in environments with high job throughput.
+
+As a best practice, configure `JOB_SPOOL_DIR` in `lsb.params` to use a high-performance, scalable filesystem rather than relying on users' home directories.
+
+In addition, **avoid using a single flat spool directory for large or high-throughput clusters**. LSF supports dynamic patterns in `JOB_SPOOL_DIR`, including `%U` for user and `%H` for the first execution host. At a minimum, consider separating spool data by user:
+
+```text
+JOB_SPOOL_DIR=/lsf_spool/%U
+```
+
+This distributes spool files across per-user directories rather than allowing all jobs to create files within one directory.
+
+For very large clusters, or environments with exceptionally high job throughput, consider further distributing the files by both user and execution host:
+
+```text
+JOB_SPOOL_DIR=/lsf_spool/%U/%H
+```
+
+Alternatively, `%H/%U` can be used where isolating filesystem activity first by execution host better suits the site's operational model.
+
+**Including `%U` also has a permissions advantage.** When `%U` is the first dynamic pattern, LSF creates the `%U` directory and subsequent directories with `700` permissions. If `%U` is omitted or is not the first dynamic pattern, LSF creates the dynamically generated subdirectories with `777` permissions. This makes `%U/%H` particularly attractive where both filesystem scalability and user-level isolation are important considerations.
+
+LSF normally removes temporary files and directories under `JOB_SPOOL_DIR` after a job finishes. However, administrators should **periodically monitor the spool filesystem for stale files and unusually large directory or inode counts**. If stale spool files accumulate because of abnormal conditions, they should be investigated and safely cleaned up. Before deleting files, verify that the associated jobs are no longer active; file age alone should not be used to determine whether a spool file can safely be removed.
+
+> **Best Practice:** Use a scalable filesystem for `JOB_SPOOL_DIR`, use at least `%U` to distribute spool files across directories, and consider `%U/%H` for very large or high-throughput environments. Monitor spool-directory file/inode counts and remove confirmed stale files when necessary.
 
 ##### 3.2.8.3 MBATCHD improve job array handling
 
