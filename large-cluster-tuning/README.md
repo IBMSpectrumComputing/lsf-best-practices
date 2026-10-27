@@ -1,4 +1,4 @@
-# Large Cluster Best Practices Guide for IBM Spectrum LSF v.10.1 Fix pack 15+
+# Large Cluster Best Practices Guide for IBM Spectrum LSF v.10.1
 
 ## Table of Contents
 
