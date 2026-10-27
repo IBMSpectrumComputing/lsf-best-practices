@@ -6,7 +6,7 @@ A collection of best practices guides for IBM Spectrum LSF.
 
 | Guide | Description |
 |-------|-------------|
-| [Large Cluster Tuning](large-cluster-tuning/README.md) | Tuning recommendations for large LSF clusters (LSF v10.1 Fix Pack 16) |
+| [Large Cluster Best Practices Guide for IBM Spectrum LSF v.10.1](large-cluster-tuning/README.md) | Large cluster tuning guide |
 
 ## Contributing
 
