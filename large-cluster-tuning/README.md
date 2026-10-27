@@ -505,6 +505,14 @@ LSF normally removes temporary files and directories under `JOB_SPOOL_DIR` after
 
 > **Best Practice:** Use a scalable filesystem for `JOB_SPOOL_DIR`, use at least `%U` to distribute spool files across directories, and consider `%U/%H` for very large or high-throughput environments. Monitor spool-directory file/inode counts and remove confirmed stale files when necessary.
 
+```text
+badmin reconfig
+```
+
+After changing JOB_SPOOL_DIR in lsb.params, run the following command to reload the configuration and make the change effective:
+
+Alternatively, restarting mbatchd with badmin mbdrestart also reloads the configuration. Jobs that are already running are not affected by the change and continue to use their existing spool directory. The updated JOB_SPOOL_DIR applies to subsequent jobs.
+
 ##### 3.2.8.3 MBATCHD improve job array handling
 
 You can improve mbatchd performance on operations for job arrays or elements by enabling `JOB_ARRAY_EVENTS_COMBINE=Y` in `lsb.params`.
